@@ -1,17 +1,14 @@
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Application {
 
-    static ArrayList<Car> cars = new ArrayList<>();
-
     public static void main(String[] args) {
-        for (int i = 1; i <= 10; i++){
-            cars.add(new Car("Car " + i, 0));
-        }
-        Race race = new Race(cars);
-        race.startRace();
+        List<Athlete> athletes = IntStream
+                .rangeClosed(1, 10)
+                .mapToObj(i -> new Athlete("Athlete " + i))
+                .collect(Collectors.toList());
+        new Race(athletes).startRace();
     }
-
-
-
 }

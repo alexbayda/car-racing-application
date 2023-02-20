@@ -1,25 +1,41 @@
+import lombok.SneakyThrows;
+
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Race {
-    private final ArrayList<Car> cars;
-    private final ExecutorService executor;
+class Race {
+    private final List<Athlete> athletes;
 
-    public Race(ArrayList<Car> cars) {
-        this.cars = cars;
-        executor = Executors.newFixedThreadPool(10);
+    public Race(List<Athlete> athletes) {
+        this.athletes = athletes;
     }
 
+    @SneakyThrows
     public void startRace() {
-        for (Car car : cars) {
-            executor.execute(car);
+        List<Thread> threads = new ArrayList<>();
+        for (Athlete athlete : athletes) {
+            Thread thread = new Thread(athlete);
+            threads.add(thread);
+            thread.start();
         }
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (Thread thread : threads) {
+                thread.join();
         }
-        executor.shutdownNow();
+        printWinners();
+    }
+
+    private void printWinners() {
+        System.out.println("The Winners");
+        AtomicInteger position = new AtomicInteger(1);
+        athletes.stream()
+                .sorted(Comparator.comparing(Athlete::getDistance).reversed())
+                .limit(3)
+                .forEachOrdered(athlete -> {
+                    int place = position.getAndIncrement();
+                    System.out.println(place + ". " + athlete.getName() +
+                            " - Distance: " + athlete.getDistance() + " - Speed: " + athlete.getSpeed());
+                });
     }
 }
